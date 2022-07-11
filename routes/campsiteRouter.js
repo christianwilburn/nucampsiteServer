@@ -27,7 +27,7 @@ campsiteRouter.route('/')
 })
 .catch(err => next(err));
 })
-.put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+.put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
   res.statusCode = 403;
   res.end('PUT operation not supported on /campsites');
 })
@@ -53,7 +53,7 @@ campsiteRouter.route('/:campsiteId')
   })
   .catch(err => next(err));
 })
-.post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
   res.statusCode = 403;
   res.end(`POST operation not supported on /campsites/${req.params.campsiteId}`)
 })
@@ -121,7 +121,7 @@ campsiteRouter.route('/:campsiteId/comments')
   res.statusCode = 403;
   res.end(`PUT operation not supported on /campsites/${req.params.campsiteId}/comments`);
 })
-.delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   Campsite.findById(req.params.campsiteId)
   .then(campsite => {
     if(campsite) {
@@ -151,9 +151,9 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
   .populate('comments.author')
   .then(campsite => {
     if(campsite && campsite.comments.id(req.params.commentId)) {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.json(campsite.comments.id(req.params.commentId));
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(campsite.comments.id(req.params.commentId));
     } else if(!campsite) {
         err = new Error(`Campsite ${req.params.campsiteId} not found`);
         err.status = 404;
@@ -166,7 +166,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
   })
   .catch(err => next(err))
 })
-.post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
   res.statusCode = 403;
   res.end(`POST operation not supported on /campsites/${req.params.campsiteId}/comments/${req.params.commentId}`);
 })
